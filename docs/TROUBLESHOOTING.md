@@ -22,6 +22,11 @@ Things that bit us or contributors, so they don't bite you. Commands use `tools/
   key next to the one platform-tools had registered. It now reuses `~/.android/adbkey` when that
   exists. Every attempt with an unaccepted key queues one more prompt on the TV, so dismiss them all
   (Back) before testing with key presses.
+- **Network ADB is off again after every reboot** on the Xiaomi Mi TV 3 (Android 5.1): port 5555
+  stays closed until you switch Settings → Account & security → ADB debugging on again. With this
+  launcher that page is under Inputs → TV settings.
+- **`adb install` hangs after printing `Success`** on Android 5.1 with platform-tools 37. Push the
+  APK and run `pm install -r` on the TV instead; `build-and-install-android5.ps1` does.
 - **Git Bash rewrites paths** like `/data/local/tmp` into Windows paths. The scripts set
   `MSYS_NO_PATHCONV=1` for you. Set `JAVA_HOME` and `ANDROID_HOME` before building there.
 
@@ -30,6 +35,23 @@ Things that bit us or contributors, so they don't bite you. Commands use `tools/
 - **Chained `pm` commands** (`pm disable a; pm disable b`) may silently stop after the first. Run
   one per shell call; `--batch` does exactly that.
 - **Large pushes hang** through the Python client. Use `tools/b64push.py` for APKs.
+- **`pm disable-user` fails with "Permission Denial: attempt to change component state"** for every
+  package on the Xiaomi Mi TV 3: the firmware withholds that right from the shell. `pm hide <package>`
+  still works and `pm unhide` undoes it; the Android 5 scripts fall back to it for the stock launcher
+  (`com.mitv.tvhome`, which runs as the system user).
+- **Home asks "Select a Home app"** after the stock launcher is put away: a leftover third-party
+  launcher also claims Home (FiredTV on a used Mi TV 3). Pick Home, then Always; Android keeps that
+  until the set of Home apps changes. Android 5's Settings → Home switches the default as soon as you
+  press OK on a row, so browsing that page can hand Home to the other launcher; pick Home there again.
+- **`pm install` waits forever** on the Xiaomi Mi TV 3 after ADB debugging was switched on again: the
+  TV shows "Install Confirmation: Do you agree to install tvhome.apk?". Press OK on the remote; leave
+  "Apply to all" unticked unless you want every ADB install allowed without asking.
+- **Xiaomi's My Apps stops listing the launcher** (`删除不合规应用` in the log): China firmware
+  only lists apps on its own whitelist there. The launcher stays installed; once it is Home that
+  list no longer matters.
+- **Xiaomi's HTTP API on port 6095** (`/controller?action=changesource`) raises a Mi Link "allow this
+  device" prompt on the TV instead of switching inputs. The Inputs menu sends the player's own
+  intent instead (`config.xml`, `source_list`).
 - **`adb exec-out screencap -p` gives a broken PNG** on some MediaTek Xiaomi sets: the binary prints
   `Init wrapper sys mutex successful` on stdout first. Save on the TV and pull the file instead:
   `screencap -p /data/local/tmp/s.png`.

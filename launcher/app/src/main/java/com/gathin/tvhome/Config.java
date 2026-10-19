@@ -31,6 +31,17 @@ final class Config {
     static final String FILE_NAME = "config.json";
     static final String WALLPAPER_NAME = "wallpaper.jpg";
 
+    /** One fixed input of a TV without TvInputManager: its menu label and the id its player takes. */
+    static final class Source {
+        final String label;
+        final int id;
+
+        Source(String label, int id) {
+            this.label = label;
+            this.id = id;
+        }
+    }
+
     final List<String> dockApps;
     final List<String> hiddenApps;
     final String liveTvPackage;
@@ -38,6 +49,12 @@ final class Config {
     final String sourcePanelService;
     final String sourcePanelAction;
     final String inputAction;
+    /** Fixed inputs (source_list), each opened with sourceIntentAction and the id in sourceIntentExtra. */
+    final List<Source> sources;
+    final String sourceIntentAction;
+    final String sourceIntentExtra;
+    /** The TV maker's own settings (picture, sound, debugging), offered at the end of the Inputs menu. */
+    final String tvSettingsAction;
     final int columns;
     final int rowsBelowDock;
     final boolean shamsiDate;
@@ -55,6 +72,7 @@ final class Config {
 
     private Config(List<String> dockApps, List<String> hiddenApps, String liveTvPackage, String liveTvAction,
                    String sourcePanelService, String sourcePanelAction, String inputAction,
+                   List<Source> sources, String sourceIntentAction, String sourceIntentExtra, String tvSettingsAction,
                    int columns, int rowsBelowDock,
                    boolean shamsiDate, boolean moduleCards, String vpnApp, boolean showHomeSettingsShortcut,
                    boolean includePhoneApps, int backgroundColor, File wallpaper, boolean overlayApplied) {
@@ -65,6 +83,10 @@ final class Config {
         this.sourcePanelService = sourcePanelService;
         this.sourcePanelAction = sourcePanelAction;
         this.inputAction = inputAction;
+        this.sources = Collections.unmodifiableList(sources);
+        this.sourceIntentAction = sourceIntentAction;
+        this.sourceIntentExtra = sourceIntentExtra;
+        this.tvSettingsAction = tvSettingsAction;
         this.columns = columns;
         this.rowsBelowDock = rowsBelowDock;
         this.shamsiDate = shamsiDate;
@@ -91,6 +113,10 @@ final class Config {
         String panelService = res.getString(R.string.source_panel_service).trim();
         String panelAction = res.getString(R.string.source_panel_action).trim();
         String inputAction = res.getString(R.string.input_action).trim();
+        List<String> sourceList = new ArrayList<>(Arrays.asList(res.getStringArray(R.array.source_list)));
+        String sourceAction = res.getString(R.string.source_intent_action).trim();
+        String sourceExtra = res.getString(R.string.source_intent_extra).trim();
+        String tvSettings = res.getString(R.string.tv_settings_action).trim();
         int columns = res.getInteger(R.integer.columns);
         int rowsBelow = res.getInteger(R.integer.rows_below_dock);
         boolean shamsi = res.getBoolean(R.bool.shamsi_date);
@@ -113,6 +139,10 @@ final class Config {
             panelService = string(json, "source_panel_service", panelService);
             panelAction = string(json, "source_panel_action", panelAction);
             inputAction = string(json, "input_action", inputAction);
+            sourceList = stringList(json, "source_list", sourceList);
+            sourceAction = string(json, "source_intent_action", sourceAction);
+            sourceExtra = string(json, "source_intent_extra", sourceExtra);
+            tvSettings = string(json, "tv_settings_action", tvSettings);
             columns = integer(json, "columns", columns, 1, 8);
             rowsBelow = integer(json, "rows_below_dock", rowsBelow, 0, 3);
             shamsi = bool(json, "shamsi_date", shamsi);
@@ -127,7 +157,11 @@ final class Config {
         // A theme can also switch the wallpaper off while the file is still there.
         if (json != null && json.has("wallpaper") && !bool(json, "wallpaper", true)) wallpaper = null;
 
+        // Fixed inputs need both the action and the extra; without them the list means nothing.
+        List<Source> sources = sourceAction.isEmpty() || sourceExtra.isEmpty()
+                ? new ArrayList<>() : sources(sourceList);
         return new Config(dock, hidden, liveTv, liveTvAction, panelService, panelAction, inputAction,
+                sources, sourceAction, sourceExtra, tvSettings,
                 Math.max(1, columns), Math.max(0, rowsBelow), shamsi, moduleCards, vpn, homeSettings, phoneApps,
                 background, wallpaper, applied);
     }
@@ -178,6 +212,21 @@ final class Config {
         } catch (IllegalArgumentException e) {
             return fallback;
         }
+    }
+
+    /** Parses "label|id" entries such as "HDMI 1|23"; a malformed entry is skipped, never a crash. */
+    private static List<Source> sources(List<String> entries) {
+        List<Source> out = new ArrayList<>();
+        for (String entry : entries) {
+            int bar = entry.lastIndexOf('|');
+            if (bar <= 0) continue;
+            try {
+                out.add(new Source(entry.substring(0, bar).trim(), Integer.parseInt(entry.substring(bar + 1).trim())));
+            } catch (NumberFormatException e) {
+                Log.w(TAG, "ignoring source_list entry: " + entry);
+            }
+        }
+        return out;
     }
 
     private static List<String> stringList(JSONObject o, String key, List<String> fallback) {

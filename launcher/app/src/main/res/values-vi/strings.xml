@@ -9,6 +9,7 @@
     <string name="standby">Chờ</string>
     <string name="not_connected">Không có thiết bị</string>
     <string name="live_tv">Truyền hình</string>
+    <string name="tv_settings">Cài đặt TV</string>
     <string name="no_inputs">Không tìm thấy nguồn vào</string>
     <string name="good_morning">Chào buổi sáng</string>
     <string name="good_afternoon">Chào buổi chiều</string>

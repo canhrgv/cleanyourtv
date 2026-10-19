@@ -39,13 +39,31 @@
          TVs that are not Android TV, such as Xiaomi's MIUI TV sets (Mi TV 3, Android 5.1). -->
     <bool name="include_phone_apps">true</bool>
 
-    <!-- The TV's Live TV / tuner app, offered at the end of the Inputs menu. Leave empty to omit. -->
-    <string name="live_tv_package" translatable="false">com.mediatek.wwtv.tvcenter</string>
+    <!-- The TV's Live TV / tuner app, offered at the end of the Inputs menu. Leave empty to omit.
+         Xiaomi MIUI TV: com.xiaomi.mitv.tvplayer with the action below (analogue tuner). -->
+    <string name="live_tv_package" translatable="false">com.xiaomi.mitv.tvplayer</string>
 
     <!-- Some TVs give their Live TV app no leanback entry point at all, so `live_tv_package` above
          resolves to nothing (TCL Android TV 9 on China-market sets is one). This action is then sent
          to that package instead, and the app starts normally. Leave empty to omit. -->
-    <string name="live_tv_action" translatable="false"></string>
+    <string name="live_tv_action" translatable="false">com.xiaomi.mitv.tvplayer.ATV_PLAY</string>
+
+    <!-- TVs with no TvInputManager whose own player switches to a fixed input given as an int extra. Each
+         "label|id" entry in source_list becomes a row of the Inputs menu that sends source_intent_action
+         with source_intent_extra = id. Xiaomi MIUI TV (Mi TV 3, Android 5.1): com.xiaomi.mitv.tvplayer.EXTSRC_PLAY
+         with "input", ids from mitv.tv.SourceManager (HDMI 1-3 = 23-25, AV = 2). Empty list: no rows. -->
+    <string name="source_intent_action" translatable="false">com.xiaomi.mitv.tvplayer.EXTSRC_PLAY</string>
+    <string name="source_intent_extra" translatable="false">input</string>
+    <string-array name="source_list" translatable="false">
+        <item>HDMI 1|23</item>
+        <item>HDMI 2|24</item>
+        <item>HDMI 3|25</item>
+        <item>AV|2</item>
+    </string-array>
+
+    <!-- The TV maker's own settings app (picture, sound, debugging switches), offered as the last row of the
+         Inputs menu. Xiaomi MIUI TV: com.xiaomi.mitv.settings.SETTINGS. Leave empty to omit. -->
+    <string name="tv_settings_action" translatable="false">com.xiaomi.mitv.settings.SETTINGS</string>
 
     <!-- TVs with no TvInputManager have no HDMI list to read, but their own source-selection panel
          still switches inputs (TCL Android TV 9 again). When nothing could be listed, the Inputs menu

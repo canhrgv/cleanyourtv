@@ -9,6 +9,7 @@
     <string name="standby">Standby</string>
     <string name="not_connected">No device</string>
     <string name="live_tv">Live TV</string>
+    <string name="tv_settings">TV settings</string>
     <string name="no_inputs">No inputs found</string>
     <string name="good_morning">Good morning</string>
     <string name="good_afternoon">Good afternoon</string>

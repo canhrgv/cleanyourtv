@@ -79,6 +79,10 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
     private String inputAction;
     private String sourcePanelService;
     private String sourcePanelAction;
+    private List<Config.Source> sources;
+    private String sourceIntentAction;
+    private String sourceIntentExtra;
+    private String tvSettingsAction;
 
     private AppAdapter adapter;
     private RecyclerView grid;
@@ -190,6 +194,10 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         inputAction = cfg.inputAction;
         sourcePanelService = cfg.sourcePanelService;
         sourcePanelAction = cfg.sourcePanelAction;
+        sources = cfg.sources;
+        sourceIntentAction = cfg.sourceIntentAction;
+        sourceIntentExtra = cfg.sourceIntentExtra;
+        tvSettingsAction = cfg.tvSettingsAction;
 
         root = findViewById(R.id.root);
         root.setBackgroundColor(cfg.backgroundColor);
@@ -724,7 +732,8 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
 
     /** Hides the Inputs pill when it would have nothing to list: streaming boxes have no HDMI-in, AV or tuner. */
     private void updateInputsButton() {
-        boolean any = liveTvIntent() != null || !sourcePanelService.isEmpty();
+        boolean any = liveTvIntent() != null || !sourcePanelService.isEmpty() || !sources.isEmpty()
+                || tvSettingsIntent() != null;
         TvInputManager tim = (TvInputManager) getSystemService(TV_INPUT_SERVICE);
         if (!any && tim != null) {
             for (TvInputInfo info : tim.getTvInputList()) {
@@ -744,6 +753,13 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         if (i != null || liveTvAction.isEmpty()) return i;
         Intent byAction = new Intent(liveTvAction).setPackage(liveTvPkg);
         return getPackageManager().resolveActivity(byAction, 0) != null ? byAction : null;
+    }
+
+    /** The TV maker's settings app (config tv_settings_action), or null when not set or not on this TV. */
+    private Intent tvSettingsIntent() {
+        if (tvSettingsAction.isEmpty()) return null;
+        Intent i = new Intent(tvSettingsAction);
+        return getPackageManager().resolveActivity(i, 0) != null ? i : null;
     }
 
     /** The TV's own source-selection panel, for TVs that have no TvInputManager (TCL Android TV 9). */
@@ -841,6 +857,18 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
                         () -> openInput(id));
             }
         }
+        // No TvInputManager inputs: the fixed inputs from config source_list, sent to the TV's own player
+        // (Xiaomi MIUI TV: EXTSRC_PLAY with the input id).
+        if (rows.getChildCount() == 0) {
+            for (Config.Source source : sources) {
+                boolean hdmi = source.label.toUpperCase(Locale.ROOT).contains("HDMI");
+                if (!hdmi && rows.getChildCount() > 0 && !sawNonHdmi) addSeparator(rows);
+                if (!hdmi) sawNonHdmi = true;
+                Intent switchTo = new Intent(sourceIntentAction).putExtra(sourceIntentExtra, source.id);
+                addInputRow(rows, popup, hdmi ? R.drawable.ic_input : R.drawable.ic_av, source.label, -1,
+                        () -> open(switchTo));
+            }
+        }
         // Nothing to list where there is no TvInputManager: the TV's own source panel switches inputs.
         if (rows.getChildCount() == 0 && !sourcePanelService.isEmpty()) {
             addInputRow(rows, popup, R.drawable.ic_input, getString(R.string.inputs), -1, this::openSourcePanel);
@@ -855,6 +883,11 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
             if (rows.getChildCount() > 0) addSeparator(rows);
             final Intent liveTvIntent = liveTv;
             addInputRow(rows, popup, R.drawable.ic_livetv, getString(R.string.live_tv), -1, () -> open(liveTvIntent));
+        }
+        Intent tvSettings = tvSettingsIntent();
+        if (tvSettings != null) {
+            if (rows.getChildCount() > 0) addSeparator(rows);
+            addInputRow(rows, popup, R.drawable.ic_settings, getString(R.string.tv_settings), -1, () -> open(tvSettings));
         }
         if (rows.getChildCount() == 0) {
             Toast.makeText(this, R.string.no_inputs, Toast.LENGTH_SHORT).show();

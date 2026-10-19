@@ -160,6 +160,28 @@ The install scripts ask the TV which launcher owns Home and only disable one the
 (`tvlauncher` or `launcherx`); pass `STOCK_LAUNCHER=<package>` (`-StockLauncher`) to override, or
 `none` to leave it alone.
 
+### Android 5 and 6 (Xiaomi Mi TV 3)
+
+Older sets have no `cmd` in their shell, so the scripts above cannot read or set Home there. Two
+PowerShell scripts use the platform-tools `adb` instead, no Python:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File launcher\build-and-install-android5.ps1 -TvHost 192.168.1.11
+powershell -ExecutionPolicy Bypass -File tools\restore-android5.ps1 -TvHost 192.168.1.11
+```
+
+The install script backs up the package list, properties and settings to `backup\`, installs the APK
+with `pm install`, starts it, then puts the stock launcher away: `pm disable-user`, or `pm hide` where
+the firmware withholds the disable right from the shell (Mi TV 3). If another app still claims Home,
+Android asks once: pick Home, then Always. The restore script unhides and re-enables the stock
+launcher the install script saved.
+
+For TVs that are not Android TV, such as Xiaomi's MIUI TV sets, `config.xml` also has
+`include_phone_apps` (tiles for apps with only a phone launcher entry), `source_intent_action`,
+`source_intent_extra` and `source_list` (an Inputs menu without TvInputManager; Mi TV 3:
+`com.xiaomi.mitv.tvplayer.EXTSRC_PLAY` with `input` 23-25 for HDMI 1-3 and 2 for AV), and
+`tv_settings_action` (a TV settings row in that menu, for picture, sound and the ADB switch).
+
 ## The launcher
 
 A small native Android TV app (`com.gathin.tvhome`, about 250 KB installed) in plain Java with
@@ -169,7 +191,7 @@ network, no background services. It needs JDK 17 and Android SDK platform 34 to 
 
 - **Configure** in [`config.xml`](launcher/app/src/main/res/values/config.xml): dock order, hidden apps, the Live TV package, columns (tiles shrink from 5 up), rows under the dock, an optional VPN app for the network pill.
 - **Themes** set the same keys plus a background colour and a wallpaper from a `config.json` pushed to the TV, no rebuild. Three ship in [`themes/`](themes/), documented there.
-- **Language** follows the TV: English, German, Spanish, Catalan, French, Russian, Simplified Chinese, Thai. Android 13+ can set it for the launcher alone: `tools/tv.py 'cmd locale set-app-locales com.gathin.tvhome --locales ca'`.
+- **Language** follows the TV: English, German, Spanish, Catalan, French, Russian, Simplified Chinese, Thai, Vietnamese. Android 13+ can set it for the launcher alone: `tools/tv.py 'cmd locale set-app-locales com.gathin.tvhome --locales ca'`.
 - **Module cards** let any TV app declare its own tile (label, caption, glow). The launcher asks you once per app, Keep hidden by default, and remembers the answer for that app's signing key and card name. Hold OK on Settings to change your mind. How to make one: [`docs/modules.md`](docs/modules.md); the contract: [`docs/specs/card.md`](docs/specs/card.md).
 - **Clock screensaver**: a drifting clock over the glow, so nothing burns in. Pick "Clock" in the TV's screensaver settings, or over ADB:
   `tools/tv.py 'settings put secure screensaver_components com.gathin.tvhome/.ClockDream; settings put secure screensaver_enabled 1'`
