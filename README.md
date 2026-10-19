@@ -64,7 +64,7 @@ screenshots pulled from the TV. With this repo as context it takes about fifteen
 - **The rest of your apps in a grid** that slides up when you press Down.
 - **One floating glass highlight** that springs from tile to tile. The focused tile lifts and shows its name.
 - **Three frosted buttons**: Inputs (HDMI ports, AV, Live TV), Wi-Fi or Ethernet with the network name, Settings.
-- **A greeting, a thin clock and the date** in [Outfit](https://fonts.google.com/specimen/Outfit), and a matching Clock screensaver.
+- **A greeting, a thin clock and the date** in [Be Vietnam Pro](https://fonts.google.com/specimen/Be+Vietnam+Pro), and a matching Clock screensaver.
 - **Themes** that change colours, wallpaper, dock and columns without a rebuild, and **module cards** that let other apps plug a tile in, only with your say-so.
 
 And a TV that stops working against you: no sponsored rows, no "Discover" nags, no analytics
@@ -233,5 +233,5 @@ top, a launcher, a port, a theme? Add it to [SHOWCASE.md](SHOWCASE.md).
 
 ## Licence
 
-MIT, see [`LICENSE`](LICENSE). The Outfit typeface is under the SIL Open Font License, see
+MIT, see [`LICENSE`](LICENSE). The Be Vietnam Pro typeface is under the SIL Open Font License, see
 `launcher/FONT-LICENSE-OFL.txt`.

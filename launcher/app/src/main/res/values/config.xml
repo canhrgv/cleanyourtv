@@ -9,17 +9,35 @@
 
     <!-- Apps pinned to the dock row at the bottom, in this order. Missing apps are skipped. -->
     <string-array name="dock_apps">
-        <item>com.netflix.ninja</item>
-        <item>com.amazon.amazonvideo.livingroom</item>
         <item>com.google.android.youtube.tv</item>
-        <item>in.startv.hotstar</item>
+        <item>com.netflix.ninja</item>
+        <item>net.fptplay.ottbox</item>
+        <item>vn.vtv.vtvgotv</item>
     </string-array>
 
     <!-- Apps never shown as tiles (e.g. the Live TV app, which the Inputs menu already covers). -->
     <string-array name="hidden_apps">
         <item>com.mediatek.wwtv.tvcenter</item>
         <item>com.mitv.gallery</item>
+        <!-- Xiaomi Mi TV 3 (China): Chinese-only content apps, Xiaomi tools and a leftover launcher. -->
+        <item>com.gitv.times</item>
+        <item>com.sohuott.tv.vod.xiaomi</item>
+        <item>com.xiaomi.mitv.shop.tvshop</item>
+        <item>com.mitv.shoplugin</item>
+        <item>com.mitv.appstore.component.land</item>
+        <item>com.mitv.videoplayer</item>
+        <item>com.mitv.mivideoplayer</item>
+        <item>com.mitv.codec.update</item>
+        <item>com.mitv.care</item>
+        <item>com.xm.webcontent</item>
+        <item>com.miui.tv.analytics</item>
+        <item>com.cmcm.cleanmaster.tv</item>
+        <item>com.altusapps.firedtvlauncher</item>
     </string-array>
+
+    <!-- Also tile installed apps that only have a phone launcher entry, not an Android TV one. Needed on
+         TVs that are not Android TV, such as Xiaomi's MIUI TV sets (Mi TV 3, Android 5.1). -->
+    <bool name="include_phone_apps">true</bool>
 
     <!-- The TV's Live TV / tuner app, offered at the end of the Inputs menu. Leave empty to omit. -->
     <string name="live_tv_package" translatable="false">com.mediatek.wwtv.tvcenter</string>

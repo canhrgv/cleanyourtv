@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- drawableTint is available from Android 6 (API 23); MainActivity.tintPillIcon tints below that. -->
+    <style name="TopButton" parent="TopButtonBase">
+        <item name="android:drawableTint">@drawable/pill_text</item>
+    </style>
+</resources>

@@ -44,6 +44,8 @@ final class Config {
     final boolean moduleCards;
     final String vpnApp;
     final boolean showHomeSettingsShortcut;
+    /** Also tile installed apps that only have a phone launcher entry (TVs that are not Android TV). */
+    final boolean includePhoneApps;
     /** Background colour behind everything, #RRGGBB; black unless a theme says otherwise. */
     final int backgroundColor;
     /** Full-screen picture behind the launcher, or null for the plain colour. */
@@ -54,8 +56,8 @@ final class Config {
     private Config(List<String> dockApps, List<String> hiddenApps, String liveTvPackage, String liveTvAction,
                    String sourcePanelService, String sourcePanelAction, String inputAction,
                    int columns, int rowsBelowDock,
-                   boolean shamsiDate, boolean moduleCards, String vpnApp, boolean showHomeSettingsShortcut, int backgroundColor,
-                   File wallpaper, boolean overlayApplied) {
+                   boolean shamsiDate, boolean moduleCards, String vpnApp, boolean showHomeSettingsShortcut,
+                   boolean includePhoneApps, int backgroundColor, File wallpaper, boolean overlayApplied) {
         this.dockApps = Collections.unmodifiableList(dockApps);
         this.hiddenApps = Collections.unmodifiableList(hiddenApps);
         this.liveTvPackage = liveTvPackage;
@@ -69,6 +71,7 @@ final class Config {
         this.moduleCards = moduleCards;
         this.vpnApp = vpnApp;
         this.showHomeSettingsShortcut = showHomeSettingsShortcut;
+        this.includePhoneApps = includePhoneApps;
         this.backgroundColor = backgroundColor;
         this.wallpaper = wallpaper;
         this.overlayApplied = overlayApplied;
@@ -94,6 +97,7 @@ final class Config {
         boolean moduleCards = res.getBoolean(R.bool.module_cards);
         String vpn = res.getString(R.string.vpn_app).trim();
         boolean homeSettings = res.getBoolean(R.bool.show_home_settings_shortcut);
+        boolean phoneApps = res.getBoolean(R.bool.include_phone_apps);
         int background = 0xFF000000;
         boolean applied = false;
 
@@ -115,6 +119,7 @@ final class Config {
             moduleCards = bool(json, "module_cards", moduleCards);
             vpn = string(json, "vpn_app", vpn);
             homeSettings = bool(json, "show_home_settings_shortcut", homeSettings);
+            phoneApps = bool(json, "include_phone_apps", phoneApps);
             background = color(json, "background_color", background);
         }
         File wallpaper = dir != null ? new File(dir, WALLPAPER_NAME) : null;
@@ -123,8 +128,8 @@ final class Config {
         if (json != null && json.has("wallpaper") && !bool(json, "wallpaper", true)) wallpaper = null;
 
         return new Config(dock, hidden, liveTv, liveTvAction, panelService, panelAction, inputAction,
-                Math.max(1, columns), Math.max(0, rowsBelow), shamsi, moduleCards, vpn, homeSettings, background,
-                wallpaper, applied);
+                Math.max(1, columns), Math.max(0, rowsBelow), shamsi, moduleCards, vpn, homeSettings, phoneApps,
+                background, wallpaper, applied);
     }
 
     /** Reads and parses the overlay; any problem means "no overlay", never a crash on the home screen. */

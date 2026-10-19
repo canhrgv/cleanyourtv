@@ -8,7 +8,8 @@ android {
 
     defaultConfig {
         applicationId 'com.gathin.tvhome'
-        minSdk 26
+        // Android 5.0+: old sets such as the Xiaomi Mi TV 3 (Android 5.1). Calls above 21 are gated on SDK_INT.
+        minSdk 21
         targetSdk 34
         versionCode 3
         versionName '2.2'

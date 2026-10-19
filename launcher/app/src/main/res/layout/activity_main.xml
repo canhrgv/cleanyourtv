@@ -21,8 +21,7 @@
         android:alpha="0"
         android:textColor="#FFFFFFFF"
         android:textSize="48sp"
-        android:fontFamily="@font/outfit"
-        android:fontVariationSettings="'wght' 300"
+        android:fontFamily="@font/be_vietnam_pro_light"
         android:letterSpacing="-0.02"
         android:includeFontPadding="false"
         android:singleLine="true" />
@@ -57,8 +56,7 @@
                     android:layout_marginStart="4dp"
                     android:textColor="#8CFFFFFF"
                     android:textSize="12sp"
-                    android:fontFamily="@font/outfit"
-                    android:fontVariationSettings="'wght' 500"
+                    android:fontFamily="@font/be_vietnam_pro_medium"
                     android:letterSpacing="0.22"
                     android:textAllCaps="true" />
 
@@ -76,8 +74,7 @@
                         android:format24Hour="HH:mm"
                         android:textColor="#FFFFFFFF"
                         android:textSize="52sp"
-                        android:fontFamily="@font/outfit"
-                        android:fontVariationSettings="'wght' 300"
+                        android:fontFamily="@font/be_vietnam_pro_light"
                         android:letterSpacing="-0.04"
                         android:includeFontPadding="false" />
 
@@ -92,8 +89,7 @@
                         android:format24Hour=""
                         android:textColor="#B3FFFFFF"
                         android:textSize="15sp"
-                        android:fontFamily="@font/outfit"
-                        android:fontVariationSettings="'wght' 500"
+                        android:fontFamily="@font/be_vietnam_pro_medium"
                         android:letterSpacing="0.08"
                         android:textAllCaps="true" />
 
@@ -123,8 +119,7 @@
                             android:ellipsize="end"
                             android:textColor="#E6FFFFFF"
                             android:textSize="17sp"
-                            android:fontFamily="@font/outfit"
-                            android:fontVariationSettings="'wght' 400"
+                            android:fontFamily="@font/be_vietnam_pro_regular"
                             android:letterSpacing="0.02"
                             android:includeFontPadding="false"
                             android:visibility="gone" />
@@ -139,8 +134,7 @@
                             android:format24Hour="@string/date_format"
                             android:textColor="#A6FFFFFF"
                             android:textSize="14sp"
-                            android:fontFamily="@font/outfit"
-                            android:fontVariationSettings="'wght' 400"
+                            android:fontFamily="@font/be_vietnam_pro_regular"
                             android:letterSpacing="0.14"
                             android:textAllCaps="true" />
                     </LinearLayout>
