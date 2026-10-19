@@ -79,7 +79,7 @@ install any launcher at all; their lists say so in the header.
 
 Tested lists from contributors, one folder per model in [`examples/`](examples/):
 
-**Xiaomi** 8 · **TCL** 7 · **Sony** 2 · BenQ · CHiQ · Chromecast with Google TV · Hisense · Insignia Fire TV ·
+**Xiaomi** 9 · **TCL** 7 · **Sony** 2 · BenQ · CHiQ · Chromecast with Google TV · Hisense · Insignia Fire TV ·
 NVIDIA Shield · OnePlus · Philips · RCA · SANYO · Toshiba Fire TV · Stellamore and XGIMI projectors
 
 <details>
@@ -111,6 +111,7 @@ NVIDIA Shield · OnePlus · Philips · RCA · SANYO · Toshiba Fire TV · Stella
 | XGIMI Horizon S Pro projector (XK03H, xgimigalileo, MediaTek) | Android TV 11 |
 | Xiaomi Mi Box S (MIBOX4, oneday), streaming box | Android TV 9 |
 | Xiaomi Mi TV (MiTV-MOOQ0, croods) | Android TV 10 |
+| Xiaomi Mi TV 3 60" (MiTV3, inception), China, MIUI TV | Android 5.1 |
 | Xiaomi Mi TV 4A (MiTV-MOOQ1) | Android TV 10 |
 | Xiaomi MiTV-AESP0 stick (aquaman, 1 GB) | Android TV 9 |
 | Xiaomi MiTV-AXSO0 (dangal; Mi TV 4C Pro 2019 / 4A Pro) | Android TV 9 |
@@ -162,35 +163,48 @@ The install scripts ask the TV which launcher owns Home and only disable one the
 
 ### Android 5 and 6 (Xiaomi Mi TV 3)
 
-Older sets have no `cmd` in their shell, so the scripts above cannot read or set Home there. Two
+Older sets have no `cmd` in their shell, so the scripts above cannot read or set Home there. These
 PowerShell scripts use the platform-tools `adb` instead, no Python:
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File launcher\build-and-install-android5.ps1 -TvHost 192.168.1.11
+powershell -ExecutionPolicy Bypass -File launcher\build-and-install-android5.ps1 -TvHost 192.168.1.11 -ScreensaverMinutes 10
+powershell -ExecutionPolicy Bypass -File tools\hide-android5.ps1 -TvHost 192.168.1.11 examples\xiaomi-mitv3-inception\debloat.txt
+powershell -ExecutionPolicy Bypass -File tools\theme-android5.ps1 -TvHost 192.168.1.11 themes\mitv3-vn
+powershell -ExecutionPolicy Bypass -File tools\install-apk-android5.ps1 -TvHost 192.168.1.11 some-app.apk
 powershell -ExecutionPolicy Bypass -File tools\restore-android5.ps1 -TvHost 192.168.1.11
 ```
 
 The install script backs up the package list, properties and settings to `backup\`, installs the APK
 with `pm install`, starts it, then puts the stock launcher away: `pm disable-user`, or `pm hide` where
 the firmware withholds the disable right from the shell (Mi TV 3). If another app still claims Home,
-Android asks once: pick Home, then Always. The restore script unhides and re-enables the stock
-launcher the install script saved.
+Android asks once: pick Home, then Always. `-ScreensaverMinutes` turns on the Clock screensaver; HDMI
+and video playback keep the screen on, so it only covers Home or a paused video.
+
+`hide-android5.ps1` is the `pm hide` counterpart of `disable.ps1` for a debloat list. `theme-android5.ps1`
+pushes a theme, including its top shelf pictures. `install-apk-android5.ps1` installs any APK from your
+computer after checking its minimum Android version and CPU against the TV's; with no working Play Store
+on these sets (no Google Play services, which stopped supporting Android 5 in 2024), that is the way to
+add apps. The restore script unhides and re-enables the stock launcher the install script saved; with
+`-StockLauncher none -List <debloat.txt>` it undoes only a debloat list.
 
 For TVs that are not Android TV, such as Xiaomi's MIUI TV sets, `config.xml` also has
 `include_phone_apps` (tiles for apps with only a phone launcher entry), `source_intent_action`,
 `source_intent_extra` and `source_list` (an Inputs menu without TvInputManager; Mi TV 3:
 `com.xiaomi.mitv.tvplayer.EXTSRC_PLAY` with `input` 23-25 for HDMI 1-3 and 2 for AV), and
-`tv_settings_action` (a TV settings row in that menu, for picture, sound and the ADB switch).
+`tv_settings_action` (a TV settings row in that menu, for picture, sound and the ADB switch), and
+`cast_component` (a Screen mirroring row: Xiaomi's AirPlay and Miracast receiver).
 
 ## The launcher
 
 A small native Android TV app (`com.gathin.tvhome`, about 250 KB installed) in plain Java with
 AndroidX RecyclerView and nothing heavier. Built for sets with 1 GB of RAM: no blur, no video, no
-network, no background services. It needs JDK 17 and Android SDK platform 34 to build; on macOS,
+background services, and no network unless you turn the weather on. It needs JDK 17 and Android SDK platform 34 to build; on macOS,
 `brew install openjdk@17 android-commandlinetools` and `sdkmanager "platforms;android-34" "build-tools;34.0.0"`.
 
 - **Configure** in [`config.xml`](launcher/app/src/main/res/values/config.xml): dock order, hidden apps, the Live TV package, columns (tiles shrink from 5 up), rows under the dock, an optional VPN app for the network pill.
-- **Themes** set the same keys plus a background colour and a wallpaper from a `config.json` pushed to the TV, no rebuild. Three ship in [`themes/`](themes/), documented there.
+- **Themes** set the same keys plus a background colour and a wallpaper from a `config.json` pushed to the TV, no rebuild. Four ship in [`themes/`](themes/), documented there.
+- **Top shelf pictures**: a theme's `shelf/<package>.jpg` fills the screen behind the app name while that dock app is focused and fades into the background towards the dock, as on tvOS. Decoded in the background at half the screen size, about 1 MB each.
+- **Weather** next to the clock from [Open-Meteo](https://open-meteo.com) (no key, no account): set `weather_location` to your city's `latitude,longitude`. One request per 30 minutes while Home is open; empty means no requests at all. Android before 7.1.1 lacks the root certificate Open-Meteo uses, so those sets ask over plain HTTP.
 - **Language** follows the TV: English, German, Spanish, Catalan, French, Russian, Simplified Chinese, Thai, Vietnamese. Android 13+ can set it for the launcher alone: `tools/tv.py 'cmd locale set-app-locales com.gathin.tvhome --locales ca'`.
 - **Module cards** let any TV app declare its own tile (label, caption, glow). The launcher asks you once per app, Keep hidden by default, and remembers the answer for that app's signing key and card name. Hold OK on Settings to change your mind. How to make one: [`docs/modules.md`](docs/modules.md); the contract: [`docs/specs/card.md`](docs/specs/card.md).
 - **Clock screensaver**: a drifting clock over the glow, so nothing burns in. Pick "Clock" in the TV's screensaver settings, or over ADB:

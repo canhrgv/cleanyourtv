@@ -12,6 +12,27 @@
         android:layout_height="match_parent"
         android:alpha="0" />
 
+    <!-- Top shelf picture of the focused dock app (a theme's shelf/<package>.jpg), over the glow. The scrim
+         fades it into the background towards the dock; its colours are set in code from background_color. -->
+    <FrameLayout
+        android:id="@+id/shelf"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:alpha="0"
+        android:importantForAccessibility="noHideDescendants">
+
+        <ImageView
+            android:id="@+id/shelfImage"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scaleType="centerCrop" />
+
+        <View
+            android:id="@+id/shelfScrim"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+    </FrameLayout>
+
     <!-- Top shelf: the focused dock app's name, positioned above the dock in code. -->
     <TextView
         android:id="@+id/heroName"
@@ -109,6 +130,23 @@
                         android:layout_gravity="bottom"
                         android:layout_marginBottom="9dp"
                         android:orientation="vertical">
+
+                        <!-- Weather ("27° · Cloudy" with an icon), shown once weather_location gave a reading. -->
+                        <TextView
+                            android:id="@+id/weather"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginBottom="5dp"
+                            android:singleLine="true"
+                            android:ellipsize="end"
+                            android:gravity="center_vertical"
+                            android:drawablePadding="7dp"
+                            android:textColor="#E6FFFFFF"
+                            android:textSize="15sp"
+                            android:fontFamily="@font/be_vietnam_pro_regular"
+                            android:letterSpacing="0.02"
+                            android:includeFontPadding="false"
+                            android:visibility="gone" />
 
                         <!-- Shamsi date ("27 Mehr 1405"), shown when shamsi_date is on. -->
                         <TextView

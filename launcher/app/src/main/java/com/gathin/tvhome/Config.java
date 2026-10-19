@@ -55,6 +55,12 @@ final class Config {
     final String sourceIntentExtra;
     /** The TV maker's own settings (picture, sound, debugging), offered at the end of the Inputs menu. */
     final String tvSettingsAction;
+    /** The TV's screen mirroring app (AirPlay, Miracast), as a component; offered in the Inputs menu. */
+    final String castComponent;
+    /** "latitude,longitude" for the weather next to the clock; empty switches the weather off. */
+    final String weatherLocation;
+    /** A theme's shelf/ folder of top shelf pictures, shelf/<package>.jpg; null when there is none. */
+    final File shelfDir;
     final int columns;
     final int rowsBelowDock;
     final boolean shamsiDate;
@@ -73,6 +79,7 @@ final class Config {
     private Config(List<String> dockApps, List<String> hiddenApps, String liveTvPackage, String liveTvAction,
                    String sourcePanelService, String sourcePanelAction, String inputAction,
                    List<Source> sources, String sourceIntentAction, String sourceIntentExtra, String tvSettingsAction,
+                   String castComponent, String weatherLocation, File shelfDir,
                    int columns, int rowsBelowDock,
                    boolean shamsiDate, boolean moduleCards, String vpnApp, boolean showHomeSettingsShortcut,
                    boolean includePhoneApps, int backgroundColor, File wallpaper, boolean overlayApplied) {
@@ -87,6 +94,9 @@ final class Config {
         this.sourceIntentAction = sourceIntentAction;
         this.sourceIntentExtra = sourceIntentExtra;
         this.tvSettingsAction = tvSettingsAction;
+        this.castComponent = castComponent;
+        this.weatherLocation = weatherLocation;
+        this.shelfDir = shelfDir;
         this.columns = columns;
         this.rowsBelowDock = rowsBelowDock;
         this.shamsiDate = shamsiDate;
@@ -117,6 +127,8 @@ final class Config {
         String sourceAction = res.getString(R.string.source_intent_action).trim();
         String sourceExtra = res.getString(R.string.source_intent_extra).trim();
         String tvSettings = res.getString(R.string.tv_settings_action).trim();
+        String cast = res.getString(R.string.cast_component).trim();
+        String weather = res.getString(R.string.weather_location).trim();
         int columns = res.getInteger(R.integer.columns);
         int rowsBelow = res.getInteger(R.integer.rows_below_dock);
         boolean shamsi = res.getBoolean(R.bool.shamsi_date);
@@ -143,6 +155,8 @@ final class Config {
             sourceAction = string(json, "source_intent_action", sourceAction);
             sourceExtra = string(json, "source_intent_extra", sourceExtra);
             tvSettings = string(json, "tv_settings_action", tvSettings);
+            cast = string(json, "cast_component", cast);
+            weather = string(json, "weather_location", weather);
             columns = integer(json, "columns", columns, 1, 8);
             rowsBelow = integer(json, "rows_below_dock", rowsBelow, 0, 3);
             shamsi = bool(json, "shamsi_date", shamsi);
@@ -156,12 +170,14 @@ final class Config {
         if (wallpaper != null && !(wallpaper.isFile() && wallpaper.length() > 0)) wallpaper = null;
         // A theme can also switch the wallpaper off while the file is still there.
         if (json != null && json.has("wallpaper") && !bool(json, "wallpaper", true)) wallpaper = null;
+        File shelf = dir != null ? new File(dir, "shelf") : null;
+        if (shelf != null && !shelf.isDirectory()) shelf = null;
 
         // Fixed inputs need both the action and the extra; without them the list means nothing.
         List<Source> sources = sourceAction.isEmpty() || sourceExtra.isEmpty()
                 ? new ArrayList<>() : sources(sourceList);
         return new Config(dock, hidden, liveTv, liveTvAction, panelService, panelAction, inputAction,
-                sources, sourceAction, sourceExtra, tvSettings,
+                sources, sourceAction, sourceExtra, tvSettings, cast, weather, shelf,
                 Math.max(1, columns), Math.max(0, rowsBelow), shamsi, moduleCards, vpn, homeSettings, phoneApps,
                 background, wallpaper, applied);
     }

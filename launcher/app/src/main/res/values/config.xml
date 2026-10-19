@@ -33,6 +33,8 @@
         <item>com.miui.tv.analytics</item>
         <item>com.cmcm.cleanmaster.tv</item>
         <item>com.altusapps.firedtvlauncher</item>
+        <!-- Play Store 5.4 without Google Play services: it opens and closes at once on this TV. -->
+        <item>com.android.vending</item>
     </string-array>
 
     <!-- Also tile installed apps that only have a phone launcher entry, not an Android TV one. Needed on
@@ -64,6 +66,16 @@
     <!-- The TV maker's own settings app (picture, sound, debugging switches), offered as the last row of the
          Inputs menu. Xiaomi MIUI TV: com.xiaomi.mitv.settings.SETTINGS. Leave empty to omit. -->
     <string name="tv_settings_action" translatable="false">com.xiaomi.mitv.settings.SETTINGS</string>
+
+    <!-- The TV's screen mirroring app (AirPlay from an iPhone, Miracast and casting from Android), as
+         package/.Activity, offered in the Inputs menu. Xiaomi MIUI TV: com.xiaomi.mitv.smartshare/.MainActivity.
+         Leave empty to omit. -->
+    <string name="cast_component" translatable="false">com.xiaomi.mitv.smartshare/.MainActivity</string>
+
+    <!-- Weather next to the clock, from Open-Meteo (no key, no account): "latitude,longitude" of your city,
+         e.g. 21.03,105.85 for Hanoi. Fetched every 30 minutes while Home is open. Leave empty to omit;
+         the launcher then makes no network requests. -->
+    <string name="weather_location" translatable="false">21.03,105.85</string>
 
     <!-- TVs with no TvInputManager have no HDMI list to read, but their own source-selection panel
          still switches inputs (TCL Android TV 9 again). When nothing could be listed, the Inputs menu

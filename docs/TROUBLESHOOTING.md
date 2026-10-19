@@ -49,6 +49,15 @@ Things that bit us or contributors, so they don't bite you. Commands use `tools/
 - **Xiaomi's My Apps stops listing the launcher** (`删除不合规应用` in the log): China firmware
   only lists apps on its own whitelist there. The launcher stays installed; once it is Home that
   list no longer matters.
+- **A photo slideshow covers Home after a few idle minutes** on the Xiaomi Mi TV 3: Xiaomi's own
+  screensaver (`com.xiaomi.tv.gallery`, a window called `my_test`) downloads pictures from Xiaomi and
+  runs on its own timer, before the Clock screensaver's. Keep whichever you prefer: `pm hide
+  com.xiaomi.tv.gallery` leaves the Clock, `pm unhide` brings the photos back.
+- **The time zone can't be set over ADB** on Android 5.1 (`setTimeZone` needs SET_TIME_ZONE, which the
+  shell lacks). Pick it on the TV in Settings → Date & time; turning off the automatic zone first
+  (`settings put global auto_time_zone 0`) keeps the choice.
+- **The weather stays empty** on Android before 7.1.1 if it is fetched over HTTPS: those sets lack the
+  ISRG root behind Open-Meteo's Let's Encrypt certificate. The launcher asks over plain HTTP there.
 - **Xiaomi's HTTP API on port 6095** (`/controller?action=changesource`) raises a Mi Link "allow this
   device" prompt on the TV instead of switching inputs. The Inputs menu sends the player's own
   intent instead (`config.xml`, `source_list`).

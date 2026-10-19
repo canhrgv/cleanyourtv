@@ -1,0 +1,41 @@
+# Xiaomi Mi TV 3 60" (MiTV3, codename inception, MStar 6A928), Android 5.1.1, firmware 7.6.9.1426, China
+#
+# Apply:   tools\hide-android5.ps1 -TvHost <tv ip> examples\xiaomi-mitv3-inception\debloat.txt
+# Undo:    tools\restore-android5.ps1 -TvHost <tv ip> -StockLauncher none -List examples\xiaomi-mitv3-inception\debloat.txt
+#
+# This firmware refuses `pm disable-user` from the shell for every package, so these are HIDDEN for
+# user 0 with `pm hide`, never uninstalled; `pm unhide` brings each one back. The stock launcher
+# (com.mitv.tvhome) is handled by launcher\build-and-install-android5.ps1, not by this list.
+#
+# Kept on purpose:
+#   com.xiaomi.mitv.smartshare, com.duokan.airkan.tvbox, com.xiaomi.miplay, com.xiaomi.dlnatvservice
+#                                          AirPlay, Miracast and DLNA casting
+#   com.xiaomi.mitv.remotecontroller.service   the Bluetooth remote
+#   com.xiaomi.mitv.tvplayer, com.xiaomi.mitv.settings, com.baidu.input (the default keyboard)
+#   com.mi.umi                             persistent system process, role unknown
+#   com.xiaomi.mitv.tvmanager              TV Manager; crashes at boot on this firmware but left alone
+
+# Leftover third-party launcher (2016) that also claims Home and takes it over from Settings > Home
+com.altusapps.firedtvlauncher
+
+# Xiaomi ads, push messages and automatic content recognition (watches what is on screen)
+com.miui.systemAdSolution
+com.xiaomi.mitv.tvpush.tvpushservice
+com.xiaomi.mitv.kuyun.acr
+com.kuyun.common.androidtv
+
+# Xiaomi telemetry
+com.miui.tv.analytics
+com.xiaomi.mitv.osstatistic             # process name: mitv.statistic
+com.xiaomi.devicereport
+
+# Chinese-only voice assistant
+com.xiaomi.voicecontrol
+
+# Xiaomi's photo screensaver: downloads pictures from Xiaomi and shows them on its own timer, ahead of
+# the launcher's Clock screensaver. Comment out to keep the photos (then leave -ScreensaverMinutes off).
+com.xiaomi.tv.gallery
+
+# Updaters: Xiaomi's app updater would bring back newer Xiaomi apps; firmware OTA ended in 2022
+com.xiaomi.tv.appupgrade
+com.xiaomi.mitv.upgrade

@@ -83,6 +83,11 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
     private String sourceIntentAction;
     private String sourceIntentExtra;
     private String tvSettingsAction;
+    private String castComponent;
+    private TopShelf topShelf;
+    /** Null when config weather_location is empty: no network requests at all then. */
+    private Weather weather;
+    private TextView weatherView;
 
     private AppAdapter adapter;
     private RecyclerView grid;
@@ -176,6 +181,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         public void run() {
             updateGreeting();
             updateWifiLabel();
+            refreshWeather();   // fetches only when the reading is 30 minutes old
             handler.postDelayed(this, MINUTE_MS);
         }
     };
@@ -198,10 +204,21 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         sourceIntentAction = cfg.sourceIntentAction;
         sourceIntentExtra = cfg.sourceIntentExtra;
         tvSettingsAction = cfg.tvSettingsAction;
+        castComponent = cfg.castComponent;
 
         root = findViewById(R.id.root);
         root.setBackgroundColor(cfg.backgroundColor);
         if (cfg.wallpaper != null) showWallpaper(cfg.wallpaper);
+        // Top shelf pictures fade into the background colour towards the dock, dimmed a little at the top
+        // so the hero name and the clock stay readable on any picture.
+        int bg = cfg.backgroundColor & 0x00FFFFFF;
+        findViewById(R.id.shelfScrim).setBackground(new GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM,
+                new int[]{0x40000000 | bg, 0x99000000 | bg, 0xFF000000 | bg}));
+        android.util.DisplayMetrics dm = getResources().getDisplayMetrics();
+        topShelf = new TopShelf(findViewById(R.id.shelf), findViewById(R.id.shelfImage), cfg.shelfDir,
+                dm.widthPixels, dm.heightPixels);
+        weatherView = findViewById(R.id.weather);
+        weather = cfg.weatherLocation.isEmpty() ? null : Weather.forLocation(cfg.weatherLocation);
         glass = findViewById(R.id.glass);
         ambient = findViewById(R.id.ambient);
         heroName = findViewById(R.id.heroName);
@@ -380,6 +397,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         reloadApps(true);
         updateGreeting();
         updateWifiLabel();
+        refreshWeather();
         updateInputsButton();
         handler.postDelayed(minuteTick, MINUTE_MS);
     }
@@ -396,8 +414,10 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
             heroShown = false;
             heroName.setAlpha(0f);
             ambient.setAlpha(0f);
+            topShelf.hide();
         }
         reloadTiles();
+        topShelf.preload(dockPackages());
         if (animate) grid.scheduleLayoutAnimation();
 
         if (restoreFocus) {
@@ -536,6 +556,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         int color = adapter.ambientColorAt(position);
         float y = dockTopInRoot - 14 * density - 26 * density - heroName.getHeight();
         boolean changed = !label.contentEquals(heroName.getText());
+        topShelf.show(adapter.pkgAt(position));
 
         if (!heroShown) {
             heroName.setText(label);
@@ -574,6 +595,23 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         heroShown = false;
         heroName.animate().alpha(0f).setDuration(160).start();
         ambient.animate().alpha(0f).setDuration(300).start();
+        topShelf.hide();
+    }
+
+    /** Packages in the dock row, whose top shelf pictures are worth decoding ahead of time. */
+    private List<String> dockPackages() {
+        List<String> out = new ArrayList<>();
+        for (int i = 0; i < Math.min(COLUMNS, adapter.getItemCount()); i++) out.add(adapter.pkgAt(i));
+        return out;
+    }
+
+    private void refreshWeather() {
+        if (weather == null) return;
+        weather.refresh(r -> {
+            weatherView.setText(getString(R.string.weather_reading, r.celsius, getString(r.labelRes())));
+            weatherView.setCompoundDrawablesRelativeWithIntrinsicBounds(r.iconRes(), 0, 0, 0);
+            weatherView.setVisibility(View.VISIBLE);
+        });
     }
 
     private void hideGlass() {
@@ -733,7 +771,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
     /** Hides the Inputs pill when it would have nothing to list: streaming boxes have no HDMI-in, AV or tuner. */
     private void updateInputsButton() {
         boolean any = liveTvIntent() != null || !sourcePanelService.isEmpty() || !sources.isEmpty()
-                || tvSettingsIntent() != null;
+                || tvSettingsIntent() != null || castIntent() != null;
         TvInputManager tim = (TvInputManager) getSystemService(TV_INPUT_SERVICE);
         if (!any && tim != null) {
             for (TvInputInfo info : tim.getTvInputList()) {
@@ -753,6 +791,14 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         if (i != null || liveTvAction.isEmpty()) return i;
         Intent byAction = new Intent(liveTvAction).setPackage(liveTvPkg);
         return getPackageManager().resolveActivity(byAction, 0) != null ? byAction : null;
+    }
+
+    /** The TV's screen mirroring app (config cast_component), or null when not set or not on this TV. */
+    private Intent castIntent() {
+        ComponentName c = castComponent.isEmpty() ? null : ComponentName.unflattenFromString(castComponent);
+        if (c == null) return null;
+        Intent i = new Intent(Intent.ACTION_MAIN).setComponent(c);
+        return getPackageManager().resolveActivity(i, 0) != null ? i : null;
     }
 
     /** The TV maker's settings app (config tv_settings_action), or null when not set or not on this TV. */
@@ -884,9 +930,14 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
             final Intent liveTvIntent = liveTv;
             addInputRow(rows, popup, R.drawable.ic_livetv, getString(R.string.live_tv), -1, () -> open(liveTvIntent));
         }
+        // The TV's own extras, together under one separator: screen mirroring, then its settings.
+        Intent cast = castIntent();
         Intent tvSettings = tvSettingsIntent();
+        if ((cast != null || tvSettings != null) && rows.getChildCount() > 0) addSeparator(rows);
+        if (cast != null) {
+            addInputRow(rows, popup, R.drawable.ic_cast, getString(R.string.screen_mirroring), -1, () -> open(cast));
+        }
         if (tvSettings != null) {
-            if (rows.getChildCount() > 0) addSeparator(rows);
             addInputRow(rows, popup, R.drawable.ic_settings, getString(R.string.tv_settings), -1, () -> open(tvSettings));
         }
         if (rows.getChildCount() == 0) {

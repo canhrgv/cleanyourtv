@@ -289,6 +289,11 @@ public class AppAdapter extends RecyclerView.Adapter<AppAdapter.Holder> {
         return -1;
     }
 
+    /** Package of the app at a position, or null. */
+    String pkgAt(int position) {
+        return position >= 0 && position < items.size() ? items.get(position).pkg : null;
+    }
+
     String labelAt(int position) {
         return position >= 0 && position < items.size() ? items.get(position).label : "";
     }

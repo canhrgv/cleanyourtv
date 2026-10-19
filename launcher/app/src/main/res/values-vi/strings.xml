@@ -10,6 +10,15 @@
     <string name="not_connected">Không có thiết bị</string>
     <string name="live_tv">Truyền hình</string>
     <string name="tv_settings">Cài đặt TV</string>
+    <string name="screen_mirroring">Chiếu màn hình</string>
+    <string name="weather_clear">Trời quang</string>
+    <string name="weather_partly_cloudy">Ít mây</string>
+    <string name="weather_cloudy">Nhiều mây</string>
+    <string name="weather_fog">Sương mù</string>
+    <string name="weather_drizzle">Mưa phùn</string>
+    <string name="weather_rain">Mưa</string>
+    <string name="weather_snow">Tuyết</string>
+    <string name="weather_storm">Dông</string>
     <string name="no_inputs">Không tìm thấy nguồn vào</string>
     <string name="good_morning">Chào buổi sáng</string>
     <string name="good_afternoon">Chào buổi chiều</string>

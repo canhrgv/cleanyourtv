@@ -34,6 +34,7 @@ on that firmware, grouped and commented. These are starting points: comment out 
 | `xiaomi-mitv-axso0/` | Xiaomi MiTV-AXSO0 (dangal; Mi TV 4C Pro 2019 / 4A Pro) | Android TV 9 | PatchWall, Glance ads, Mi TV+, Sensara, Mi analytics, MiLink; voice, Chromecast, unused streaming apps off by choice |
 | `xiaomi-mitv-moor2/` | Xiaomi MiTV-MOOR2 (venom, MediaTek) | Google TV 11 | Mi ad row and PatchWall, Mi analytics, MiLink, store demo; setup wizard off so a third-party launcher can own Home |
 | `xiaomi-mitv-mssp3/` | Xiaomi MiTV-MSSP3 (machuca, MediaTek) | Android TV 11 | PatchWall, Mi analytics, Netflix observer; Chromecast, screensavers, unused streaming apps off by choice |
+| `xiaomi-mitv3-inception/` | Xiaomi Mi TV 3 60" (MiTV3, inception, MStar 6A928), China | Android 5.1 | No Google services; shell may not disable packages, so the list is applied with `pm hide` (`tools\hide-android5.ps1`); Xiaomi ads, ACR and telemetry, Chinese voice, updaters, a leftover FiredTV launcher; casting kept |
 | `xiaomi-tv-a-pro-2026/` | Xiaomi TV A Pro 75" 2026 (MiTV-MZTU0, river, MediaTek) | Google TV 14 | PatchWall/Mi Home tab, Mi analytics, TV Manager, updaters; setup wizard off, launcherx crash-loop notes |
 
 To add your TV, see [CONTRIBUTING.md](../CONTRIBUTING.md). The quickest way to get a list is to

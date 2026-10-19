@@ -2,8 +2,9 @@
 # unhide and re-enable the stock launcher that launcher\build-and-install-android5.ps1 put away, so Home
 # goes back to it, plus every package in a debloat list if you pass one. Uses the platform-tools adb, no Python.
 #
-# Usage: tools\restore-android5.ps1 -TvHost 192.168.1.11 [-StockLauncher <package>] [-List <debloat.txt>] [-RemoveLauncher]
-#        The stock launcher defaults to the one the install script saved in the newest backup\*\stock-launcher.txt.
+# Usage: tools\restore-android5.ps1 -TvHost 192.168.1.11 [-StockLauncher <package>|none] [-List <debloat.txt>] [-RemoveLauncher]
+#        The stock launcher defaults to the one the install script saved in the newest backup\*\stock-launcher.txt;
+#        `none` with -List undoes tools\hide-android5.ps1 only and keeps this launcher as Home.
 #        -RemoveLauncher also uninstalls this launcher; by default it stays installed, as with restore.ps1.
 param(
     [string]$TvHost = $env:TV_HOST,
@@ -44,14 +45,16 @@ if (-not $StockLauncher) {
         Sort-Object LastWriteTime -Descending | Select-Object -First 1
     if ($saved) { $StockLauncher = "$(Get-Content $saved.FullName | Select-Object -First 1)".Trim() }
     if (-not $StockLauncher -or $StockLauncher -eq 'none') {
-        throw 'no saved stock launcher: pass -StockLauncher <package> (Xiaomi Mi TV 3: com.mitv.tvhome)'
+        throw 'no saved stock launcher: pass -StockLauncher <package> (Xiaomi Mi TV 3: com.mitv.tvhome), or none to restore only -List'
     }
 }
 
 $connect = & { $ErrorActionPreference = 'Continue'; "$(& $adb connect $device 2>&1)" }
 if ($connect -notmatch 'connected') { throw "adb could not reach ${device}: $connect" }
 
-$pkgs = @($StockLauncher)
+# -StockLauncher none: bring back only the debloat list and leave this launcher as Home.
+$pkgs = @()
+if ($StockLauncher -ne 'none') { $pkgs += $StockLauncher }
 if ($List) {
     $pkgs += Get-Content (Resolve-Path $List).Path | ForEach-Object { ($_ -replace '#.*$', '').Trim() } | Where-Object { $_ }
 }
@@ -65,7 +68,9 @@ foreach ($p in $pkgs) {
 if ($RemoveLauncher) { Write-Host ((Tv "pm uninstall $self") -join ' ') }
 
 $target = Get-HomeTarget
-if ($target -like "$StockLauncher/*") {
+if ($StockLauncher -eq 'none') {
+    Write-Host "Home resolves to $target."
+} elseif ($target -like "$StockLauncher/*") {
     Write-Host "Home resolves to $target again. Press Home on the remote."
 } elseif ($target -match 'ResolverActivity') {
     Write-Host "Home opens Android's chooser: on the TV pick the stock launcher, then Always."

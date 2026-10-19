@@ -15,6 +15,7 @@ powershell -ExecutionPolicy Bypass -File tools\theme.ps1 -TvHost 192.168.1.50 th
 | `default/` | The built-in look written out as JSON, as a starting point for your own |
 | `aurora/` | A dark aurora wallpaper (teal and violet on navy, darker at the bottom) with a matching background colour |
 | `six-columns/` | Six smaller tiles per row and one grid row visible under the dock |
+| `mitv3-vn/` | Navy-black background and abstract top shelf pictures in each brand's colours for YouTube, Netflix, FPT Play and VTV Go; made on a Xiaomi Mi TV 3 (push with `tools\theme-android5.ps1`) |
 
 ## Keys
 
@@ -36,6 +37,19 @@ is ignored, and a file that doesn't parse is ignored as a whole, so a theme can 
 | `show_home_settings_shortcut` | bool | The "Default home" tile, where the TV has a home picker |
 | `background_color` | `#RRGGBB` | Colour behind everything; black by default |
 | `wallpaper` | bool | Show `wallpaper.jpg` from the theme folder (`true`), or ignore it (`false`) |
+| `include_phone_apps` | bool | Also tile installed apps that only have a phone launcher entry (TVs that are not Android TV) |
+| `source_intent_action`, `source_intent_extra`, `source_list` | string, string, list of `"label\|id"` | Inputs menu rows for TVs without TvInputManager: each sends the action with the id as an int extra (Xiaomi MIUI TV: `com.xiaomi.mitv.tvplayer.EXTSRC_PLAY`, `input`, `"HDMI 1\|23"`) |
+| `tv_settings_action` | string | The TV maker's settings, as the last row of the Inputs menu |
+| `cast_component` | string | The TV's screen mirroring app as `package/.Activity`, a row in the Inputs menu |
+| `weather_location` | string | `"latitude,longitude"` for the weather next to the clock; `""` turns it off |
+
+## Top shelf pictures
+
+A `shelf/` folder in the theme, with one picture per dock app named after its package
+(`shelf/com.netflix.ninja.jpg`; `.png` and `.webp` work too), fills the screen behind the app's name
+while its dock tile is focused, fading into `background_color` towards the dock. Apps without a picture
+keep the coloured glow. Keep them 1920×1080, dark at the bottom and under about 150 KB; the launcher
+decodes them at half size, about 1 MB of memory each, for the dock apps only.
 
 ## Wallpapers
 

@@ -4,12 +4,16 @@
 # disable packages) so Home lands here. Uses the platform-tools adb rather than tools\tv.py, so no Python.
 #
 # Usage: launcher\build-and-install-android5.ps1 -TvHost 192.168.1.11 [-StockLauncher <package>|none] [-NoBuild]
+#                                               [-ScreensaverMinutes 10]
 #        The stock launcher is read from the TV's home task when -StockLauncher is not given.
+#        -ScreensaverMinutes turns on the Clock screensaver after that many idle minutes. Players that keep
+#        the screen on (HDMI, video playback) hold it off; a paused video or Home shows the clock.
 # Undo:  tools\restore-android5.ps1 -TvHost 192.168.1.11
 param(
     [string]$TvHost = $env:TV_HOST,
     [string]$StockLauncher = '',
-    [switch]$NoBuild
+    [switch]$NoBuild,
+    [int]$ScreensaverMinutes = 0
 )
 $ErrorActionPreference = 'Stop'
 if (-not $TvHost) { throw 'pass -TvHost <tv ip> or set $env:TV_HOST' }
@@ -125,5 +129,14 @@ if ($target -like "$self/*") {
         Tv "pm enable $StockLauncher" | Out-Null
     }
     throw "Home resolves to '$target', not to the new launcher; $StockLauncher was re-enabled."
+}
+if ($ScreensaverMinutes -gt 0) {
+    # Android dreams instead of sleeping when activate_on_sleep is on; sets that never time out (Xiaomi ships
+    # screen_off_timeout at its maximum) need a real timeout for the dream to start at all.
+    foreach ($cmd in "settings put secure screensaver_components $self/.ClockDream", 'settings put secure screensaver_enabled 1',
+            'settings put secure screensaver_activate_on_sleep 1', "settings put system screen_off_timeout $($ScreensaverMinutes * 60000)") {
+        Tv $cmd | Out-Null
+    }
+    Write-Host "Clock screensaver after $ScreensaverMinutes idle minutes."
 }
 Write-Host 'Installed. Press Home on the remote to see it.'

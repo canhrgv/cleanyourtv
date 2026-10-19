@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="18dp" android:height="18dp"
+    android:viewportWidth="24" android:viewportHeight="24">
+    <path android:fillColor="#FFFFFFFF" android:pathData="M5,8a3,3 0 1,1 6,0a3,3 0 1,1 -6,0z" />
+    <path android:strokeColor="#FFFFFFFF" android:strokeWidth="1.6" android:strokeLineCap="round"
+        android:pathData="M8,2.2v1.6M2.2,8h1.6M3.9,3.9l1.1,1.1M12.1,3.9l-1.1,1.1M3.9,12.1l1.1,-1.1" />
+    <!-- Cloud: every shape runs clockwise so the overlaps fill as one silhouette. -->
+    <path android:fillColor="#FFFFFFFF"
+        android:pathData="M9.5,14.5h8.5a3,3 0 0,1 0,6h-8.5a3,3 0 0,1 0,-6zM10.5,13a4,4 0 1,1 8,0a4,4 0 1,1 -8,0zM7.5,16.5a2.75,2.75 0 1,1 5.5,0a2.75,2.75 0 1,1 -5.5,0z" />
+</vector>
