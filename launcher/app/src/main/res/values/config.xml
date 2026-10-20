@@ -63,6 +63,11 @@
         <item>AV|2</item>
     </string-array>
 
+    <!-- When the TV is switched on, open the first of these inputs that has a device connected, in this order,
+         e.g. 23,24,25 for HDMI 1, then 2, then 3 (ids as in source_list; sent with source_intent_action).
+         Needs Xiaomi's TV API to see which ports are connected (MIUI TV sets). Empty: always start on Home. -->
+    <string name="power_on_inputs" translatable="false">23,24,25</string>
+
     <!-- The TV maker's own settings app (picture, sound, debugging switches), offered as the last row of the
          Inputs menu. Xiaomi MIUI TV: com.xiaomi.mitv.settings.SETTINGS. Leave empty to omit. -->
     <string name="tv_settings_action" translatable="false">com.xiaomi.mitv.settings.SETTINGS</string>

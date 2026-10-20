@@ -219,6 +219,10 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
                 dm.widthPixels, dm.heightPixels);
         weatherView = findViewById(R.id.weather);
         weather = cfg.weatherLocation.isEmpty() ? null : Weather.forLocation(cfg.weatherLocation);
+        if (!cfg.powerOnInputs.isEmpty()) {
+            PowerOnInput.listenForScreenOn(this);
+            PowerOnInput.onHomeStarted(this, cfg);   // Home's first start after a boot is the power-on
+        }
         glass = findViewById(R.id.glass);
         ambient = findViewById(R.id.ambient);
         heroName = findViewById(R.id.heroName);
@@ -387,6 +391,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
     @Override
     protected void onResume() {
         super.onResume();
+        PowerOnInput.lastHomeShownAt = android.os.SystemClock.uptimeMillis();
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             registerReceiver(packageReceiver, packageFilter, Context.RECEIVER_NOT_EXPORTED);
         } else {
@@ -497,6 +502,13 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
     @Override
     public void onBackPressed() {
         // Home screen: Back goes nowhere.
+    }
+
+    /** Any key on Home means the owner is using the TV: a power-on input scan must not take over then. */
+    @Override
+    public boolean dispatchKeyEvent(KeyEvent event) {
+        if (event.getAction() == KeyEvent.ACTION_DOWN) PowerOnInput.lastHomeKeyAt = android.os.SystemClock.uptimeMillis();
+        return super.dispatchKeyEvent(event);
     }
 
     // ---- glass highlight -------------------------------------------------------------------------

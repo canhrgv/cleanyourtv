@@ -53,6 +53,8 @@ final class Config {
     final List<Source> sources;
     final String sourceIntentAction;
     final String sourceIntentExtra;
+    /** Input ids to try when the TV is switched on, in priority order; the first connected one opens. */
+    final List<Integer> powerOnInputs;
     /** The TV maker's own settings (picture, sound, debugging), offered at the end of the Inputs menu. */
     final String tvSettingsAction;
     /** The TV's screen mirroring app (AirPlay, Miracast), as a component; offered in the Inputs menu. */
@@ -78,7 +80,8 @@ final class Config {
 
     private Config(List<String> dockApps, List<String> hiddenApps, String liveTvPackage, String liveTvAction,
                    String sourcePanelService, String sourcePanelAction, String inputAction,
-                   List<Source> sources, String sourceIntentAction, String sourceIntentExtra, String tvSettingsAction,
+                   List<Source> sources, String sourceIntentAction, String sourceIntentExtra, List<Integer> powerOnInputs,
+                   String tvSettingsAction,
                    String castComponent, String weatherLocation, File shelfDir,
                    int columns, int rowsBelowDock,
                    boolean shamsiDate, boolean moduleCards, String vpnApp, boolean showHomeSettingsShortcut,
@@ -93,6 +96,7 @@ final class Config {
         this.sources = Collections.unmodifiableList(sources);
         this.sourceIntentAction = sourceIntentAction;
         this.sourceIntentExtra = sourceIntentExtra;
+        this.powerOnInputs = Collections.unmodifiableList(powerOnInputs);
         this.tvSettingsAction = tvSettingsAction;
         this.castComponent = castComponent;
         this.weatherLocation = weatherLocation;
@@ -126,6 +130,7 @@ final class Config {
         List<String> sourceList = new ArrayList<>(Arrays.asList(res.getStringArray(R.array.source_list)));
         String sourceAction = res.getString(R.string.source_intent_action).trim();
         String sourceExtra = res.getString(R.string.source_intent_extra).trim();
+        String powerOn = res.getString(R.string.power_on_inputs).trim();
         String tvSettings = res.getString(R.string.tv_settings_action).trim();
         String cast = res.getString(R.string.cast_component).trim();
         String weather = res.getString(R.string.weather_location).trim();
@@ -154,6 +159,7 @@ final class Config {
             sourceList = stringList(json, "source_list", sourceList);
             sourceAction = string(json, "source_intent_action", sourceAction);
             sourceExtra = string(json, "source_intent_extra", sourceExtra);
+            powerOn = string(json, "power_on_inputs", powerOn);
             tvSettings = string(json, "tv_settings_action", tvSettings);
             cast = string(json, "cast_component", cast);
             weather = string(json, "weather_location", weather);
@@ -177,7 +183,7 @@ final class Config {
         List<Source> sources = sourceAction.isEmpty() || sourceExtra.isEmpty()
                 ? new ArrayList<>() : sources(sourceList);
         return new Config(dock, hidden, liveTv, liveTvAction, panelService, panelAction, inputAction,
-                sources, sourceAction, sourceExtra, tvSettings, cast, weather, shelf,
+                sources, sourceAction, sourceExtra, ids(powerOn), tvSettings, cast, weather, shelf,
                 Math.max(1, columns), Math.max(0, rowsBelow), shamsi, moduleCards, vpn, homeSettings, phoneApps,
                 background, wallpaper, applied);
     }
@@ -228,6 +234,19 @@ final class Config {
         } catch (IllegalArgumentException e) {
             return fallback;
         }
+    }
+
+    /** Parses "23,24,25" into input ids in order; anything that is not a number is skipped. */
+    private static List<Integer> ids(String list) {
+        List<Integer> out = new ArrayList<>();
+        for (String part : list.split(",")) {
+            try {
+                if (!part.trim().isEmpty()) out.add(Integer.parseInt(part.trim()));
+            } catch (NumberFormatException e) {
+                Log.w(TAG, "ignoring power_on_inputs entry: " + part);
+            }
+        }
+        return out;
     }
 
     /** Parses "label|id" entries such as "HDMI 1|23"; a malformed entry is skipped, never a crash. */

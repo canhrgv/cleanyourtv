@@ -191,8 +191,12 @@ For TVs that are not Android TV, such as Xiaomi's MIUI TV sets, `config.xml` als
 `include_phone_apps` (tiles for apps with only a phone launcher entry), `source_intent_action`,
 `source_intent_extra` and `source_list` (an Inputs menu without TvInputManager; Mi TV 3:
 `com.xiaomi.mitv.tvplayer.EXTSRC_PLAY` with `input` 23-25 for HDMI 1-3 and 2 for AV), and
-`tv_settings_action` (a TV settings row in that menu, for picture, sound and the ADB switch), and
-`cast_component` (a Screen mirroring row: Xiaomi's AirPlay and Miracast receiver).
+`tv_settings_action` (a TV settings row in that menu, for picture, sound and the ADB switch),
+`cast_component` (a Screen mirroring row: Xiaomi's AirPlay and Miracast receiver), and
+`power_on_inputs` (`23,24,25`: when the TV is switched on, open HDMI 1, else 2, else 3, whichever first
+shows a picture, or stay on Home; it uses Xiaomi's TV API to see connected ports and their signal, and
+`adb shell am broadcast -a com.gathin.tvhome.action.CHECK_POWER_ON_INPUT -n com.gathin.tvhome/.PowerOnInput`
+runs it without a reboot).
 
 ## The launcher
 

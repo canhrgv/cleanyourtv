@@ -58,6 +58,18 @@ Things that bit us or contributors, so they don't bite you. Commands use `tools/
   (`settings put global auto_time_zone 0`) keeps the choice.
 - **The weather stays empty** on Android before 7.1.1 if it is fetched over HTTPS: those sets lack the
   ISRG root behind Open-Meteo's Let's Encrypt certificate. The launcher asks over plain HTTP there.
+- **Nothing happens at power-on although `CHECK_POWER_ON_INPUT` works over adb**: Xiaomi's firmware marks
+  every third-party app stopped at boot (`PackageManager: stop: <package>` in the log) and delivers
+  BOOT_COMPLETED only to its own apps (`unmatched pkg name=`). The launcher therefore treats Home's first
+  start after a boot as the power-on (once per kernel boot id) and keeps BOOT_COMPLETED for other TVs.
+- **An HDMI port counts as connected with its device switched off** on the Xiaomi Mi TV 3:
+  `isSourceConnected` sees the cable, not a picture, and the TV only measures the signal of the input on
+  screen. `power_on_inputs` therefore opens each connected port in turn; the switch reports "unlocked"
+  about 6.5 s later and, when there is a picture, "locked" 0.5 to 3 s after that. The first
+  `isSourceConnected` answer after the TV service is reached is empty. So the launcher looks for ports
+  every 2 s for 20 s, waits up to 20 s per port and 8 s after an "unlocked". The firmware drops app logs
+  at info level during boot, so every scan also writes its steps with seconds since boot to
+  `/sdcard/Android/data/com.gathin.tvhome/files/power-on.log`.
 - **Xiaomi's HTTP API on port 6095** (`/controller?action=changesource`) raises a Mi Link "allow this
   device" prompt on the TV instead of switching inputs. The Inputs menu sends the player's own
   intent instead (`config.xml`, `source_list`).

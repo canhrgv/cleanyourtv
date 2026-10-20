@@ -9,6 +9,8 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <!-- Only for the weather next to the clock (config weather_location); empty location, no requests. -->
     <uses-permission android:name="android.permission.INTERNET" />
+    <!-- Only for config power_on_inputs: open a connected HDMI input when the TV is switched on. -->
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <!-- Needed on Android 10 to read the Wi-Fi network name; granted over adb at install time. -->
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
@@ -33,6 +35,10 @@
         android:theme="@style/Theme.TvHome"
         android:allowBackup="false"
         android:localeConfig="@xml/locales_config">
+
+        <!-- Xiaomi's TV API (mitv.tv.*), for PowerOnInput to see which inputs are connected. Optional: on other
+             TVs the launcher installs without it and the feature stays off. -->
+        <uses-library android:name="com.xiaomi.mitv.api" android:required="false" />
 
         <activity
             android:name=".MainActivity"
@@ -90,6 +96,18 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </service>
+
+        <!-- Opens the first connected input at power-on (config power_on_inputs). DUMP limits who may send it
+             to the system and the adb shell, which uses CHECK_POWER_ON_INPUT to test without a reboot. -->
+        <receiver
+            android:name=".PowerOnInput"
+            android:exported="true"
+            android:permission="android.permission.DUMP">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="com.gathin.tvhome.action.CHECK_POWER_ON_INPUT" />
+            </intent-filter>
+        </receiver>
 
         <!-- The remote's Input button (KEYCODE_TV) opens the input switcher; see InputKeyService. -->
         <service
