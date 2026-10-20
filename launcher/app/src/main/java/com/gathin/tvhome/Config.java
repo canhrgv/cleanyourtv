@@ -55,6 +55,8 @@ final class Config {
     final String sourceIntentExtra;
     /** Input ids to try when the TV is switched on, in priority order; the first connected one opens. */
     final List<Integer> powerOnInputs;
+    /** Input shown live in a window on Home (Xiaomi's TV API); 0 for none. */
+    final int homePreviewInput;
     /** The TV maker's own settings (picture, sound, debugging), offered at the end of the Inputs menu. */
     final String tvSettingsAction;
     /** The TV's screen mirroring app (AirPlay, Miracast), as a component; offered in the Inputs menu. */
@@ -81,7 +83,7 @@ final class Config {
     private Config(List<String> dockApps, List<String> hiddenApps, String liveTvPackage, String liveTvAction,
                    String sourcePanelService, String sourcePanelAction, String inputAction,
                    List<Source> sources, String sourceIntentAction, String sourceIntentExtra, List<Integer> powerOnInputs,
-                   String tvSettingsAction,
+                   int homePreviewInput, String tvSettingsAction,
                    String castComponent, String weatherLocation, File shelfDir,
                    int columns, int rowsBelowDock,
                    boolean shamsiDate, boolean moduleCards, String vpnApp, boolean showHomeSettingsShortcut,
@@ -97,6 +99,7 @@ final class Config {
         this.sourceIntentAction = sourceIntentAction;
         this.sourceIntentExtra = sourceIntentExtra;
         this.powerOnInputs = Collections.unmodifiableList(powerOnInputs);
+        this.homePreviewInput = homePreviewInput;
         this.tvSettingsAction = tvSettingsAction;
         this.castComponent = castComponent;
         this.weatherLocation = weatherLocation;
@@ -131,6 +134,7 @@ final class Config {
         String sourceAction = res.getString(R.string.source_intent_action).trim();
         String sourceExtra = res.getString(R.string.source_intent_extra).trim();
         String powerOn = res.getString(R.string.power_on_inputs).trim();
+        String preview = res.getString(R.string.home_preview_input).trim();
         String tvSettings = res.getString(R.string.tv_settings_action).trim();
         String cast = res.getString(R.string.cast_component).trim();
         String weather = res.getString(R.string.weather_location).trim();
@@ -160,6 +164,7 @@ final class Config {
             sourceAction = string(json, "source_intent_action", sourceAction);
             sourceExtra = string(json, "source_intent_extra", sourceExtra);
             powerOn = string(json, "power_on_inputs", powerOn);
+            preview = string(json, "home_preview_input", preview);
             tvSettings = string(json, "tv_settings_action", tvSettings);
             cast = string(json, "cast_component", cast);
             weather = string(json, "weather_location", weather);
@@ -176,6 +181,7 @@ final class Config {
         if (wallpaper != null && !(wallpaper.isFile() && wallpaper.length() > 0)) wallpaper = null;
         // A theme can also switch the wallpaper off while the file is still there.
         if (json != null && json.has("wallpaper") && !bool(json, "wallpaper", true)) wallpaper = null;
+        List<Integer> previewIds = ids(preview);
         File shelf = dir != null ? new File(dir, "shelf") : null;
         if (shelf != null && !shelf.isDirectory()) shelf = null;
 
@@ -183,7 +189,8 @@ final class Config {
         List<Source> sources = sourceAction.isEmpty() || sourceExtra.isEmpty()
                 ? new ArrayList<>() : sources(sourceList);
         return new Config(dock, hidden, liveTv, liveTvAction, panelService, panelAction, inputAction,
-                sources, sourceAction, sourceExtra, ids(powerOn), tvSettings, cast, weather, shelf,
+                sources, sourceAction, sourceExtra, ids(powerOn), previewIds.isEmpty() ? 0 : previewIds.get(0),
+                tvSettings, cast, weather, shelf,
                 Math.max(1, columns), Math.max(0, rowsBelow), shamsi, moduleCards, vpn, homeSettings, phoneApps,
                 background, wallpaper, applied);
     }

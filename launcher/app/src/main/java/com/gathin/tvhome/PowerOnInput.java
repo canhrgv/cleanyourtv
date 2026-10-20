@@ -76,6 +76,11 @@ public class PowerOnInput extends BroadcastReceiver {
         ctx.getApplicationContext().registerReceiver(new PowerOnInput(), new IntentFilter(Intent.ACTION_SCREEN_ON));
     }
 
+    /** While a scan runs it owns the TV's input; Home's live preview waits for it. */
+    static boolean scanning() {
+        return Scan.running;
+    }
+
     /** Called when Home is created: the first time after a boot, this is the power-on. */
     static void onHomeStarted(Context ctx, Config cfg) {
         if (SystemClock.elapsedRealtime() > BOOT_WINDOW_MS || !firstForThisBoot(ctx)) return;

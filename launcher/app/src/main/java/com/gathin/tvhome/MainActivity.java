@@ -84,6 +84,13 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
     private String sourceIntentExtra;
     private String tvSettingsAction;
     private String castComponent;
+    /** Live window of config home_preview_input on Home; null when not configured. */
+    private HdmiPreview hdmiPreview;
+    private View previewCard;
+    private TextView previewStatus;
+    private int previewInput;
+    private int previewTries;
+    private final Runnable startPreview = this::startPreview;
     private TopShelf topShelf;
     /** Null when config weather_location is empty: no network requests at all then. */
     private Weather weather;
@@ -222,6 +229,16 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         if (!cfg.powerOnInputs.isEmpty()) {
             PowerOnInput.listenForScreenOn(this);
             PowerOnInput.onHomeStarted(this, cfg);   // Home's first start after a boot is the power-on
+        }
+        previewInput = cfg.homePreviewInput;
+        previewCard = findViewById(R.id.previewCard);
+        previewStatus = findViewById(R.id.previewStatus);
+        if (previewInput > 0 && !sourceIntentAction.isEmpty() && !sourceIntentExtra.isEmpty()) {
+            hdmiPreview = new HdmiPreview(findViewById(R.id.preview), previewInput, picture ->
+                    previewStatus.setText(picture ? "" : getString(R.string.preview_no_signal)));
+            ((TextView) findViewById(R.id.previewLabel)).setText(sourceLabel(previewInput));
+            previewCard.setOnClickListener(v ->
+                    open(new Intent(sourceIntentAction).putExtra(sourceIntentExtra, previewInput)));
         }
         glass = findViewById(R.id.glass);
         ambient = findViewById(R.id.ambient);
@@ -405,6 +422,8 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         refreshWeather();
         updateInputsButton();
         handler.postDelayed(minuteTick, MINUTE_MS);
+        previewTries = 0;
+        handler.postDelayed(startPreview, 400);   // after the first layout, which places the window
     }
 
     /** Rebuilds the tiles (and the module cards), then puts focus back where it was. */
@@ -476,6 +495,9 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         super.onPause();
         unregisterReceiver(packageReceiver);
         handler.removeCallbacks(minuteTick);
+        // The input goes back to Android whenever Home is covered, so apps and the TV's player find it free.
+        handler.removeCallbacks(startPreview);
+        if (hdmiPreview != null) hdmiPreview.stop();
         // Nothing of ours stays on screen over another app; an undecided prompt simply returns next time.
         if (cardPrompt != null) cardPrompt.dismiss();
         if (openPopup != null) openPopup.dismiss();
@@ -608,6 +630,33 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         heroName.animate().alpha(0f).setDuration(160).start();
         ambient.animate().alpha(0f).setDuration(300).start();
         topShelf.hide();
+    }
+
+    /**
+     * Shows the preview input live while Home is in front and a device is plugged in. The power-on scan owns the
+     * input while it runs, and the first "connected" answer after the TV service is reached can be empty, so this
+     * looks a few times before hiding the window.
+     */
+    private void startPreview() {
+        if (hdmiPreview == null) return;
+        if (PowerOnInput.scanning()) {
+            handler.postDelayed(startPreview, 2000);
+            return;
+        }
+        if (!hdmiPreview.connected()) {
+            if (++previewTries < 3) handler.postDelayed(startPreview, 2000);
+            else previewCard.setVisibility(View.GONE);
+            return;
+        }
+        previewStatus.setText(R.string.preview_connecting);
+        previewCard.setVisibility(View.VISIBLE);
+        hdmiPreview.start();
+    }
+
+    /** The source_list label for an input id ("HDMI 1"), or a plain one. */
+    private String sourceLabel(int id) {
+        for (Config.Source s : sources) if (s.id == id) return s.label;
+        return getString(R.string.inputs) + " " + id;
     }
 
     /** Packages in the dock row, whose top shelf pictures are worth decoding ahead of time. */

@@ -11,6 +11,8 @@
     <string name="live_tv">Truyền hình</string>
     <string name="tv_settings">Cài đặt TV</string>
     <string name="screen_mirroring">Chiếu màn hình</string>
+    <string name="preview_connecting">Đang kết nối…</string>
+    <string name="preview_no_signal">Không có tín hiệu</string>
     <string name="weather_clear">Trời quang</string>
     <string name="weather_partly_cloudy">Ít mây</string>
     <string name="weather_cloudy">Nhiều mây</string>

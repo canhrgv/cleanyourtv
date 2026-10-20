@@ -235,6 +235,53 @@
         </FrameLayout>
     </LinearLayout>
 
+    <!-- Live window of one input (config home_preview_input), top right above the dock. The TvView is a hole
+         through to the TV's video plane, which Xiaomi's TvViewManager scales into it; OK opens the input. -->
+    <FrameLayout
+        android:id="@+id/previewCard"
+        android:layout_width="400dp"
+        android:layout_height="225dp"
+        android:layout_gravity="top|end"
+        android:layout_marginTop="104dp"
+        android:layout_marginEnd="56dp"
+        android:padding="3dp"
+        android:background="@drawable/preview_frame"
+        android:focusable="true"
+        android:clickable="true"
+        android:nextFocusDown="@+id/grid"
+        android:visibility="gone">
+
+        <android.media.tv.TvView
+            android:id="@+id/preview"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+        <TextView
+            android:id="@+id/previewStatus"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:textColor="#B3FFFFFF"
+            android:textSize="14sp"
+            android:fontFamily="@font/be_vietnam_pro_regular" />
+
+        <TextView
+            android:id="@+id/previewLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|start"
+            android:layout_margin="8dp"
+            android:paddingStart="10dp"
+            android:paddingEnd="10dp"
+            android:paddingTop="3dp"
+            android:paddingBottom="3dp"
+            android:background="@drawable/pill_bg"
+            android:textColor="#FFFFFFFF"
+            android:textSize="12sp"
+            android:fontFamily="@font/be_vietnam_pro_medium"
+            android:letterSpacing="0.06" />
+    </FrameLayout>
+
     <!-- The single floating glass highlight that springs between tiles. -->
     <com.gathin.tvhome.GlassView
         android:id="@+id/glass"

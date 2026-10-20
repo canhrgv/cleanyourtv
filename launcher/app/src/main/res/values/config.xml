@@ -68,6 +68,11 @@
          Needs Xiaomi's TV API to see which ports are connected (MIUI TV sets). Empty: always start on Home. -->
     <string name="power_on_inputs" translatable="false">23,24,25</string>
 
+    <!-- Show this input live in a window on Home while a device is plugged into it, e.g. 23 for HDMI 1 (id as
+         in source_list); OK on the window opens it full screen. Needs Xiaomi's TV API (MIUI TV sets).
+         Leave empty to omit. -->
+    <string name="home_preview_input" translatable="false">23</string>
+
     <!-- The TV maker's own settings app (picture, sound, debugging switches), offered as the last row of the
          Inputs menu. Xiaomi MIUI TV: com.xiaomi.mitv.settings.SETTINGS. Leave empty to omit. -->
     <string name="tv_settings_action" translatable="false">com.xiaomi.mitv.settings.SETTINGS</string>

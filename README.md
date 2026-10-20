@@ -196,7 +196,9 @@ For TVs that are not Android TV, such as Xiaomi's MIUI TV sets, `config.xml` als
 `power_on_inputs` (`23,24,25`: when the TV is switched on, open HDMI 1, else 2, else 3, whichever first
 shows a picture, or stay on Home; it uses Xiaomi's TV API to see connected ports and their signal, and
 `adb shell am broadcast -a com.gathin.tvhome.action.CHECK_POWER_ON_INPUT -n com.gathin.tvhome/.PowerOnInput`
-runs it without a reboot).
+runs it without a reboot), and `home_preview_input` (`23`: HDMI 1 live in a window above the dock while
+a device is plugged in, the way Xiaomi's own launcher shows its small TV window through
+`mitv.tv.TvViewManager`; OK on it opens the input, and leaving Home hands the screen back to Android).
 
 ## The launcher
 

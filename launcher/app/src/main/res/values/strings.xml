@@ -11,6 +11,8 @@
     <string name="live_tv">Live TV</string>
     <string name="tv_settings">TV settings</string>
     <string name="screen_mirroring">Screen mirroring</string>
+    <string name="preview_connecting">Connecting…</string>
+    <string name="preview_no_signal">No signal</string>
     <string name="weather_reading" translatable="false">%1$d° · %2$s</string>
     <string name="weather_clear">Clear</string>
     <string name="weather_partly_cloudy">Partly cloudy</string>

@@ -70,6 +70,12 @@ Things that bit us or contributors, so they don't bite you. Commands use `tools/
   every 2 s for 20 s, waits up to 20 s per port and 8 s after an "unlocked". The firmware drops app logs
   at info level during boot, so every scan also writes its steps with seconds since boot to
   `/sdcard/Android/data/com.gathin.tvhome/files/power-on.log`.
+- **The HDMI window on Home stays black**: the TV draws HDMI on a video plane under Android's, and
+  `mitv.tv.TvViewManager.registerMainTvView(tvView, null)` scales that plane into an
+  `android.media.tv.TvView`'s place on screen; the TvView only has to stay a plain hole (no background
+  of its own, nothing opaque on top). The window shows once `setCurrentSource` has locked onto the
+  input, which can take 7 to 13 s after switching. Leaving Home calls `unregisterTvView`, which sets the
+  source back to Android (34); if an app ever shows black video, press Home once and leave again.
 - **Xiaomi's HTTP API on port 6095** (`/controller?action=changesource`) raises a Mi Link "allow this
   device" prompt on the TV instead of switching inputs. The Inputs menu sends the player's own
   intent instead (`config.xml`, `source_list`).

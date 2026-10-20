@@ -40,6 +40,7 @@ is ignored, and a file that doesn't parse is ignored as a whole, so a theme can 
 | `include_phone_apps` | bool | Also tile installed apps that only have a phone launcher entry (TVs that are not Android TV) |
 | `source_intent_action`, `source_intent_extra`, `source_list` | string, string, list of `"label\|id"` | Inputs menu rows for TVs without TvInputManager: each sends the action with the id as an int extra (Xiaomi MIUI TV: `com.xiaomi.mitv.tvplayer.EXTSRC_PLAY`, `input`, `"HDMI 1\|23"`) |
 | `power_on_inputs` | string, e.g. `"23,24,25"` | Input ids to open when the TV is switched on, in order; the first with a picture wins, none means Home (needs Xiaomi's TV API) |
+| `home_preview_input` | string, e.g. `"23"` | Input shown live in a window on Home while a device is plugged in; `""` turns it off (needs Xiaomi's TV API) |
 | `tv_settings_action` | string | The TV maker's settings, as the last row of the Inputs menu |
 | `cast_component` | string | The TV's screen mirroring app as `package/.Activity`, a row in the Inputs menu |
 | `weather_location` | string | `"latitude,longitude"` for the weather next to the clock; `""` turns it off |
